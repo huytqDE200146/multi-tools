@@ -1,5 +1,6 @@
 import React from 'react';
 import { Card, Badge } from 'react-bootstrap';
+import './TaskItem.css';
 
 function TaskItem({ task, onToggleStatus, onDelete }) {
   const { title, status, dueDate } = task;
@@ -10,7 +11,7 @@ function TaskItem({ task, onToggleStatus, onDelete }) {
   const statusLabel = `${status === 'done' ? 'Hoàn thành' : status === 'in-progress' ? 'Đang làm' : 'Chưa làm'}`;
 
   return (
-    <Card className="mb-2 shadow-sm task-item">
+    <Card className={`mb-2 shadow-sm task-item status-${status}`}>
       <Card.Body className="d-flex justify-content-between align-items-center">
         <div>
           <Card.Title className="mb-1 fs-6">{title}</Card.Title>
