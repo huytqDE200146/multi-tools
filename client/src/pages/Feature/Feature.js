@@ -1,19 +1,16 @@
 import React, { useState, useEffect } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
 import { Form, Button, Row, Col, Spinner, Alert, ListGroup } from 'react-bootstrap';
 import TaskList from '../../components/TaskList/TaskList';
-
-const initialTasks = [
-  { id: 1, title: 'Hoàn thành báo cáo FER202', status: 'in-progress', dueDate: '2026-07-20' },
-  { id: 2, title: 'Ôn tập Redux Toolkit', status: 'todo', dueDate: '2026-07-22' },
-  { id: 3, title: 'Setup project Multi Tools', status: 'done', dueDate: '2026-07-13' },
-];
+import { addTask, toggleTaskStatus, deleteTask } from '../../features/tasks/tasksSlice';
 
 const Feature = () => {
-  const [tasks, setTasks] = useState(initialTasks);
+  const tasks = useSelector((state) => state.tasks.items);
+  const dispatch = useDispatch();
+
   const [newTitle, setNewTitle] = useState('');
   const [newDueDate, setNewDueDate] = useState('');
 
-  // --- State cho việc fetch ngày lễ (LO7) ---
   const [holidays, setHolidays] = useState([]);
   const [loadingHolidays, setLoadingHolidays] = useState(true);
   const [errorHolidays, setErrorHolidays] = useState(null);
@@ -22,7 +19,6 @@ const Feature = () => {
     document.title = `Multi Tools (${tasks.length} nhiệm vụ)`;
   }, [tasks]);
 
-  // Fetch ngày lễ Việt Nam năm 2026 từ Nager.Date API — chỉ chạy 1 lần lúc mount
   useEffect(() => {
     const fetchHolidays = async () => {
       setLoadingHolidays(true);
@@ -48,42 +44,31 @@ const Feature = () => {
     e.preventDefault();
     if (!newTitle.trim()) return;
 
-    const newTask = {
-      id: Date.now(),
-      title: newTitle.trim(),
-      status: 'todo',
-      dueDate: newDueDate || null,
-    };
+    dispatch(
+      addTask({
+        id: Date.now(),
+        title: newTitle.trim(),
+        status: 'todo',
+        dueDate: newDueDate || null,
+      })
+    );
 
-    setTasks((prevTasks) => [newTask, ...prevTasks]);
     setNewTitle('');
     setNewDueDate('');
   };
 
   const handleToggleStatus = (id) => {
-    setTasks((prevTasks) =>
-      prevTasks.map((task) => {
-        if (task.id !== id) return task;
-        const nextStatus =
-          task.status === 'todo'
-            ? 'in-progress'
-            : task.status === 'in-progress'
-            ? 'done'
-            : 'todo';
-        return { ...task, status: nextStatus };
-      })
-    );
+    dispatch(toggleTaskStatus(id));
   };
 
   const handleDeleteTask = (id) => {
-    setTasks((prevTasks) => prevTasks.filter((task) => task.id !== id));
+    dispatch(deleteTask(id));
   };
 
   return (
     <div>
       <h1>Lịch & Nhiệm vụ</h1>
 
-      {/* --- Khối hiển thị ngày lễ (LO7) --- */}
       <div className="mb-4">
         <h2 className="h5">Ngày lễ Việt Nam 2026</h2>
         {loadingHolidays && (
