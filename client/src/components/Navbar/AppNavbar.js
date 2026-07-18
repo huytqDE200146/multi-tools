@@ -30,6 +30,9 @@ const AppNavbar = () => {
                 </Badge>
               )}
             </Nav.Link>
+            <Nav.Link as={NavLink} to="/lessons">
+              Lessons
+            </Nav.Link>
             <Nav.Link as={NavLink} to="/about">
               Giới thiệu
             </Nav.Link>

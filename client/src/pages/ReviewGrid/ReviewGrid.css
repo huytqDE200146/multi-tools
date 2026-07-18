@@ -1,0 +1,57 @@
+.review-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(48px, 1fr));
+  gap: 8px;
+}
+
+.review-cell {
+  aspect-ratio: 1 / 1;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: transform 0.1s ease;
+}
+
+.review-cell:hover {
+  transform: scale(1.08);
+}
+
+.review-cell.answered {
+  background: #198754;
+  color: #fff;
+}
+
+.review-cell.unanswered {
+  background: #e9ecef;
+  color: #495057;
+}
+
+.review-legend {
+  display: flex;
+  gap: 1.5rem;
+}
+
+.review-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.9rem;
+}
+
+.review-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.review-dot.answered {
+  background: #198754;
+}
+
+.review-dot.unanswered {
+  background: #e9ecef;
+  border: 1px solid #adb5bd;
+}
