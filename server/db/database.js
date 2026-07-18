@@ -64,6 +64,7 @@ db.exec(`
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     lessonId INTEGER NOT NULL,
     questionText TEXT NOT NULL,
+    imageUrl TEXT NOT NULL DEFAULT '',
     options TEXT NOT NULL,
     correctIndexes TEXT NOT NULL,
     allowMultiple INTEGER NOT NULL DEFAULT 0,

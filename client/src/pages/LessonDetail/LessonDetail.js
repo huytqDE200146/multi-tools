@@ -1,4 +1,4 @@
-import React, { useEffect, useCallback } from 'react';
+import React, { useEffect, useCallback, useState } from 'react';
 import { useParams, useSearchParams, useNavigate, Link } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { Spinner, Alert, Card } from 'react-bootstrap';
@@ -8,33 +8,60 @@ import './LessonDetail.css';
 
 const OPTION_LETTERS = ['A', 'B', 'C', 'D', 'E', 'F'];
 
+const SERVER_URL = (process.env.REACT_APP_API_URL || 'http://localhost:5000/api').replace('/api', '');
+
 const emptyAnswer = { selected: [], submitted: false, isCorrect: false };
+
+// Xáo trộn mảng theo thuật toán Fisher-Yates, trả về mảng MỚI (không sửa mảng gốc)
+function shuffleArray(array) {
+  const result = [...array];
+  for (let i = result.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [result[i], result[j]] = [result[j], result[i]];
+  }
+  return result;
+}
 
 const LessonDetail = () => {
   const { subjectId, lessonId } = useParams();
   const [searchParams, setSearchParams] = useSearchParams();
-  const navigate = useNavigate();
   const dispatch = useDispatch();
 
   const { items: questions, loading, error } = useSelector((state) => state.questions);
   const answersForLesson = useSelector((state) => state.quiz.answers[lessonId] || {});
 
-  const currentIndex = Math.max(0, parseInt(searchParams.get('q') || '0', 10));
-  const currentQuestion = questions[currentIndex];
-  const answer = currentQuestion
-    ? answersForLesson[currentQuestion.id] || emptyAnswer
-    : emptyAnswer;
+  const [mode, setMode] = useState('sequential'); // 'sequential' | 'random'
+  // displayOrder: mảng các INDEX của "questions", quy định thứ tự hiển thị thực tế
+  const [displayOrder, setDisplayOrder] = useState([]);
 
   useEffect(() => {
     dispatch(fetchQuestionsByLesson(lessonId));
   }, [dispatch, lessonId]);
 
-  const goToQuestion = useCallback(
-    (index) => {
-      const clamped = Math.min(Math.max(index, 0), questions.length - 1);
+  // Mỗi khi questions tải xong hoặc đổi mode, tính lại thứ tự hiển thị
+  useEffect(() => {
+    if (questions.length === 0) return;
+    const baseOrder = questions.map((_, idx) => idx);
+    setDisplayOrder(mode === 'random' ? shuffleArray(baseOrder) : baseOrder);
+    setSearchParams({ q: '0' });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [questions.length, mode]);
+
+  const currentPosition = Math.max(0, parseInt(searchParams.get('q') || '0', 10));
+  const currentQuestionIndex = displayOrder[currentPosition];
+  const currentQuestion =
+    currentQuestionIndex !== undefined ? questions[currentQuestionIndex] : undefined;
+
+  const answer = currentQuestion
+    ? answersForLesson[currentQuestion.id] || emptyAnswer
+    : emptyAnswer;
+
+  const goToPosition = useCallback(
+    (position) => {
+      const clamped = Math.min(Math.max(position, 0), displayOrder.length - 1);
       setSearchParams({ q: String(clamped) });
     },
-    [questions.length, setSearchParams]
+    [displayOrder.length, setSearchParams]
   );
 
   const handleSelectOption = useCallback(
@@ -63,44 +90,43 @@ const LessonDetail = () => {
     );
   }, [dispatch, lessonId, currentQuestion, answer.selected.length]);
 
-  // --- Bàn phím: A-F chọn đáp án, Enter submit/next, ← → chuyển câu ---
   useEffect(() => {
     function handleKeyDown(e) {
       if (!currentQuestion) return;
 
       const letterIndex = OPTION_LETTERS.indexOf(e.key.toUpperCase());
-        const numberIndex = '123456'.indexOf(e.key) !== -1 ? Number(e.key) - 1 : -1;
-        const optionIndex = letterIndex !== -1 ? letterIndex : numberIndex;
+      const numberIndex = '123456'.indexOf(e.key) !== -1 ? Number(e.key) - 1 : -1;
+      const optionIndex = letterIndex !== -1 ? letterIndex : numberIndex;
 
-        if (optionIndex !== -1 && optionIndex < currentQuestion.options.length) {
+      if (optionIndex !== -1 && optionIndex < currentQuestion.options.length) {
         handleSelectOption(optionIndex);
         return;
-        }
+      }
 
       if (e.key === 'Enter') {
         e.preventDefault();
         if (!answer.submitted) {
           handleSubmit();
         } else {
-          goToQuestion(currentIndex + 1);
+          goToPosition(currentPosition + 1);
         }
         return;
       }
 
       if (e.key === 'ArrowRight') {
-        goToQuestion(currentIndex + 1);
+        goToPosition(currentPosition + 1);
         return;
       }
 
       if (e.key === 'ArrowLeft') {
-        goToQuestion(currentIndex - 1);
+        goToPosition(currentPosition - 1);
         return;
       }
     }
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [currentQuestion, answer, currentIndex, handleSelectOption, handleSubmit, goToQuestion]);
+  }, [currentQuestion, answer, currentPosition, handleSelectOption, handleSubmit, goToPosition]);
 
   if (loading) {
     return (
@@ -126,9 +152,12 @@ const LessonDetail = () => {
     );
   }
 
+  if (!currentQuestion) {
+    return null; // đang đợi displayOrder được tính xong (1 nhịp render rất ngắn)
+  }
+
   const answeredCount = Object.values(answersForLesson).filter((a) => a.submitted).length;
 
-  // Xác định trạng thái màu cho từng lựa chọn sau khi đã submit
   const getOptionState = (optionIndex) => {
     if (!answer.submitted) {
       return answer.selected.includes(optionIndex) ? 'selected' : 'default';
@@ -148,9 +177,32 @@ const LessonDetail = () => {
         ← Quay lại danh sách bài học
       </Link>
 
+      <div className="lesson-mode-toggle mb-3">
+        <button
+          className={`lesson-mode-btn ${mode === 'sequential' ? 'active' : ''}`}
+          onClick={() => setMode('sequential')}
+        >
+          Thứ tự
+        </button>
+        <button
+          className={`lesson-mode-btn ${mode === 'random' ? 'active' : ''}`}
+          onClick={() => setMode('random')}
+        >
+          Ngẫu nhiên
+        </button>
+        {mode === 'random' && (
+          <button
+            className="lesson-mode-btn"
+            onClick={() => setDisplayOrder(shuffleArray(questions.map((_, idx) => idx)))}
+          >
+            🔀 Xáo lại
+          </button>
+        )}
+      </div>
+
       <div className="d-flex justify-content-between align-items-center mb-3">
         <h1 className="h4 mb-0">
-          Câu {currentIndex + 1} / {questions.length}
+          Câu {currentPosition + 1} / {questions.length}
           {currentQuestion.allowMultiple && (
             <span className="lesson-multi-badge">Chọn nhiều đáp án</span>
           )}
@@ -163,7 +215,14 @@ const LessonDetail = () => {
       <Card className="mb-3 lesson-question-card">
         <Card.Body>
           <Card.Title className="lesson-question-text">{currentQuestion.questionText}</Card.Title>
-          <div className="mt-3">
+            {currentQuestion.imageUrl && (
+            <img
+                src={`${SERVER_URL}/question-images/${currentQuestion.imageUrl}`}
+                alt="Minh họa câu hỏi"
+                className="lesson-question-image"
+            />
+            )}
+            <div className="mt-3">
             {currentQuestion.options.map((option, idx) => {
               const optionState = getOptionState(idx);
               return (
@@ -204,15 +263,15 @@ const LessonDetail = () => {
       <div className="d-flex justify-content-between">
         <button
           className="lesson-nav-btn"
-          disabled={currentIndex === 0}
-          onClick={() => goToQuestion(currentIndex - 1)}
+          disabled={currentPosition === 0}
+          onClick={() => goToPosition(currentPosition - 1)}
         >
           ← Câu trước
         </button>
         <button
           className="lesson-nav-btn"
-          disabled={currentIndex === questions.length - 1}
-          onClick={() => goToQuestion(currentIndex + 1)}
+          disabled={currentPosition === questions.length - 1}
+          onClick={() => goToPosition(currentPosition + 1)}
         >
           Câu tiếp →
         </button>

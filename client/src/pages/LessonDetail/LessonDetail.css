@@ -171,3 +171,57 @@
 .lesson-nav-btn:not(:disabled):hover {
   background: #3a3a3c;
 }
+
+.lesson-mode-toggle {
+  display: flex;
+  gap: 8px;
+}
+
+.lesson-mode-btn {
+  background: #2c2c2e;
+  color: #b0b0b3;
+  border: 1px solid #3a3a3c;
+  border-radius: 20px;
+  padding: 6px 16px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.lesson-mode-btn:hover {
+  background: #3a3a3c;
+  color: #fff;
+}
+
+.lesson-mode-btn.active {
+  background: #0a84ff;
+  color: #fff;
+  border-color: #0a84ff;
+}
+
+.lesson-question-image {
+  display: block;
+  max-width: 100%;
+  max-height: 400px;
+  border-radius: 8px;
+  margin-top: 12px;
+  border: 1px solid #2c2c2e;
+}
+
+.lesson-option-default {
+  display: flex;
+  align-items: center;
+  background: #2c2c2e;
+  border: 2px solid transparent;
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin-bottom: 8px;
+  font-size: 0.95rem;
+}
+
+.study-correct-tag {
+  margin-left: auto;
+  color: #30d158;
+  font-size: 0.85rem;
+  font-weight: 600;
+}

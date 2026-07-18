@@ -39,6 +39,7 @@ router.post('/', (req, res) => {
   const {
     lessonId,
     questionText,
+    imageUrl = '',
     options,
     correctIndexes,
     allowMultiple = false,
@@ -57,11 +58,12 @@ router.post('/', (req, res) => {
 
   const result = db
     .prepare(
-      'INSERT INTO questions (lessonId, questionText, options, correctIndexes, allowMultiple, explanation, orderIndex) VALUES (?, ?, ?, ?, ?, ?, ?)'
+      'INSERT INTO questions (lessonId, questionText, imageUrl, options, correctIndexes, allowMultiple, explanation, orderIndex) VALUES (?, ?, ?, ?, ?, ?, ?, ?)'
     )
     .run(
       lessonId,
       questionText,
+      imageUrl,
       JSON.stringify(options),
       JSON.stringify(correctIndexes),
       allowMultiple ? 1 : 0,
@@ -79,6 +81,7 @@ router.put('/:id', (req, res) => {
   if (!existing) return res.status(404).json({ error: 'Question not found' });
 
   const questionText = req.body.questionText ?? existing.questionText;
+  const imageUrl = req.body.imageUrl ?? existing.imageUrl;
   const options = req.body.options ?? JSON.parse(existing.options);
   const correctIndexes = req.body.correctIndexes ?? JSON.parse(existing.correctIndexes);
   const allowMultiple = req.body.allowMultiple ?? Boolean(existing.allowMultiple);
@@ -86,9 +89,10 @@ router.put('/:id', (req, res) => {
   const orderIndex = req.body.orderIndex ?? existing.orderIndex;
 
   db.prepare(
-    'UPDATE questions SET questionText = ?, options = ?, correctIndexes = ?, allowMultiple = ?, explanation = ?, orderIndex = ? WHERE id = ?'
+    'UPDATE questions SET questionText = ?, imageUrl = ?, options = ?, correctIndexes = ?, allowMultiple = ?, explanation = ?, orderIndex = ? WHERE id = ?'
   ).run(
     questionText,
+    imageUrl,
     JSON.stringify(options),
     JSON.stringify(correctIndexes),
     allowMultiple ? 1 : 0,

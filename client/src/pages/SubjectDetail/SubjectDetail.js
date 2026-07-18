@@ -103,15 +103,29 @@ const SubjectDetail = () => {
                   </Link>
                 </Card.Title>
                 <Card.Text className="text-muted flex-grow-1">
-                  {lesson.description || 'Không có mô tả.'}
-                </Card.Text>
-                <Button
-                  variant="outline-danger"
-                  size="sm"
-                  onClick={() => handleDeleteLesson(lesson.id)}
-                >
-                  Xóa bài học
-                </Button>
+                    {lesson.description || 'Không có mô tả.'}
+                    </Card.Text>
+                    <div className="d-flex gap-2">
+                    <Link
+                        to={`/lessons/${subjectId}/${lesson.id}/study`}
+                        className="btn btn-outline-info btn-sm"
+                    >
+                        Học
+                    </Link>
+                    <Link
+                        to={`/lessons/${subjectId}/${lesson.id}`}
+                        className="btn btn-outline-primary btn-sm"
+                    >
+                        Thi
+                    </Link>
+                    <Button
+                        variant="outline-danger"
+                        size="sm"
+                        onClick={() => handleDeleteLesson(lesson.id)}
+                    >
+                        Xóa
+                    </Button>
+                    </div>
               </Card.Body>
             </Card>
           </Col>
