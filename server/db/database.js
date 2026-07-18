@@ -38,4 +38,38 @@ db.exec(`
   )
 `);
 
+// ---- Bảng Subjects (môn học) ----
+db.exec(`
+  CREATE TABLE IF NOT EXISTS subjects (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    description TEXT NOT NULL DEFAULT ''
+  )
+`);
+
+// ---- Bảng Lessons (bài học/bài tập, thuộc 1 môn học) ----
+db.exec(`
+  CREATE TABLE IF NOT EXISTS lessons (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    subjectId INTEGER NOT NULL,
+    title TEXT NOT NULL,
+    description TEXT NOT NULL DEFAULT '',
+    FOREIGN KEY (subjectId) REFERENCES subjects(id) ON DELETE CASCADE
+  )
+`);
+
+// ---- Bảng Questions (câu hỏi trắc nghiệm, thuộc 1 bài học) ----
+db.exec(`
+  CREATE TABLE IF NOT EXISTS questions (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    lessonId INTEGER NOT NULL,
+    questionText TEXT NOT NULL,
+    options TEXT NOT NULL,
+    correctIndex INTEGER NOT NULL,
+    explanation TEXT NOT NULL DEFAULT '',
+    orderIndex INTEGER NOT NULL DEFAULT 0,
+    FOREIGN KEY (lessonId) REFERENCES lessons(id) ON DELETE CASCADE
+  )
+`);
+
 module.exports = db;
