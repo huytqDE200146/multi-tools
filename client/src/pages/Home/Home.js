@@ -1,19 +1,37 @@
-import React from 'react';
+import React, { useEffect } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import { Spinner, Alert } from 'react-bootstrap';
 import StatsSummary from '../../components/StatsSummary/StatsSummary';
 import TaskList from '../../components/TaskList/TaskList';
-
-const sampleTasks = [
-  { id: 1, title: 'Hoàn thành báo cáo FER202', status: 'in-progress', dueDate: '2026-07-20' },
-  { id: 2, title: 'Ôn tập Redux Toolkit', status: 'todo', dueDate: '2026-07-22' },
-  { id: 3, title: 'Setup project Multi Tools', status: 'done', dueDate: '2026-07-13' },
-];
+import { fetchTasks, toggleTaskStatus, deleteTask } from '../../features/tasks/tasksSlice';
 
 const Home = () => {
+  const { items: tasks, loading, error } = useSelector((state) => state.tasks);
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(fetchTasks());
+  }, [dispatch]);
+
+  const handleToggleStatus = (task) => dispatch(toggleTaskStatus(task));
+  const handleDeleteTask = (id) => dispatch(deleteTask(id));
+
   return (
     <div>
-      <StatsSummary userName="Huy" tasks={sampleTasks} />
+      <StatsSummary userName="Huy" tasks={tasks} />
+
       <h2 className="h5 mt-4">Danh sách nhiệm vụ gần đây</h2>
-      <TaskList tasks={sampleTasks} />
+
+      {loading && (
+        <div className="d-flex align-items-center gap-2">
+          <Spinner animation="border" size="sm" />
+          <span>Đang tải nhiệm vụ...</span>
+        </div>
+      )}
+      {error && <Alert variant="danger">{error}</Alert>}
+      {!loading && !error && (
+        <TaskList tasks={tasks} onToggleStatus={handleToggleStatus} onDelete={handleDeleteTask} />
+      )}
     </div>
   );
 };

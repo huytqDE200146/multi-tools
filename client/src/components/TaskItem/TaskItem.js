@@ -35,7 +35,7 @@ function TaskItem({ task, onToggleStatus, onDelete }) {
           {onToggleStatus && (
             <button
               className="btn btn-sm btn-outline-primary me-2"
-              onClick={() => onToggleStatus(id)}
+              onClick={() => onToggleStatus(task)}
             >
               Đổi trạng thái
             </button>

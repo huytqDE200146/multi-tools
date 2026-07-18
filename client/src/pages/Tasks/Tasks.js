@@ -1,22 +1,24 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { Form, Button, Row, Col } from 'react-bootstrap';
+import { Form, Button, Row, Col, Spinner, Alert } from 'react-bootstrap';
 import TaskList from '../../components/TaskList/TaskList';
-import { addTask, toggleTaskStatus, deleteTask } from '../../features/tasks/tasksSlice';
+import { fetchTasks, addTask, toggleTaskStatus, deleteTask } from '../../features/tasks/tasksSlice';
 import { PRIORITY_ORDER } from '../../constants/priority';
 
 const Tasks = () => {
-  const tasks = useSelector((state) => state.tasks.items);
+  const { items: tasks, loading, error } = useSelector((state) => state.tasks);
   const dispatch = useDispatch();
 
-  // --- State cho form thêm task ---
   const [newTitle, setNewTitle] = useState('');
   const [newDueDate, setNewDueDate] = useState('');
   const [newPriority, setNewPriority] = useState('medium');
 
-  // --- State cho sắp xếp và tìm kiếm ---
   const [sortBy, setSortBy] = useState('date');
   const [searchTerm, setSearchTerm] = useState('');
+
+  useEffect(() => {
+    dispatch(fetchTasks());
+  }, [dispatch]);
 
   const handleAddTask = (e) => {
     e.preventDefault();
@@ -24,7 +26,6 @@ const Tasks = () => {
 
     dispatch(
       addTask({
-        id: Date.now(),
         title: newTitle.trim(),
         status: 'todo',
         dueDate: newDueDate || null,
@@ -37,10 +38,9 @@ const Tasks = () => {
     setNewPriority('medium');
   };
 
-  const handleToggleStatus = (id) => dispatch(toggleTaskStatus(id));
+  const handleToggleStatus = (task) => dispatch(toggleTaskStatus(task));
   const handleDeleteTask = (id) => dispatch(deleteTask(id));
 
-  // useMemo: chỉ tính lại danh sách đã lọc+sắp xếp khi tasks/sortBy/searchTerm thay đổi
   const visibleTasks = useMemo(() => {
     const filtered = tasks.filter((t) =>
       t.title.toLowerCase().includes(searchTerm.trim().toLowerCase())
@@ -56,7 +56,6 @@ const Tasks = () => {
           return a.status.localeCompare(b.status);
         case 'date':
         default:
-          // Task chưa có ngày (null) đẩy xuống cuối
           if (!a.dueDate) return 1;
           if (!b.dueDate) return -1;
           return a.dueDate.localeCompare(b.dueDate);
@@ -125,15 +124,26 @@ const Tasks = () => {
         </Col>
       </Row>
 
-      <p className="text-muted">
-        Hiển thị {visibleTasks.length} / {tasks.length} nhiệm vụ
-      </p>
+      {loading && (
+        <div className="d-flex align-items-center gap-2 mb-3">
+          <Spinner animation="border" size="sm" />
+          <span>Đang tải nhiệm vụ...</span>
+        </div>
+      )}
+      {error && <Alert variant="danger">{error}</Alert>}
 
-      <TaskList
-        tasks={visibleTasks}
-        onToggleStatus={handleToggleStatus}
-        onDelete={handleDeleteTask}
-      />
+      {!loading && !error && (
+        <>
+          <p className="text-muted">
+            Hiển thị {visibleTasks.length} / {tasks.length} nhiệm vụ
+          </p>
+          <TaskList
+            tasks={visibleTasks}
+            onToggleStatus={handleToggleStatus}
+            onDelete={handleDeleteTask}
+          />
+        </>
+      )}
     </div>
   );
 };

@@ -1,58 +1,83 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import {
+  fetchTasksApi,
+  createTaskApi,
+  updateTaskApi,
+  deleteTaskApi,
+} from '../../api/tasksApi';
+
+// --- Async Thunks: mỗi thunk đại diện cho 1 lời gọi API bất đồng bộ ---
+
+export const fetchTasks = createAsyncThunk('tasks/fetchTasks', async () => {
+  return await fetchTasksApi();
+});
+
+export const addTask = createAsyncThunk('tasks/addTask', async (taskData) => {
+  return await createTaskApi(taskData);
+});
+
+export const updateTask = createAsyncThunk('tasks/updateTask', async ({ id, changes }) => {
+  return await updateTaskApi(id, changes);
+});
+
+export const deleteTask = createAsyncThunk('tasks/deleteTask', async (id) => {
+  return await deleteTaskApi(id);
+});
+
+// Đổi trạng thái vẫn dùng updateTask, nhưng viết 1 thunk riêng cho tiện gọi
+export const toggleTaskStatus = createAsyncThunk(
+  'tasks/toggleTaskStatus',
+  async (task) => {
+    const nextStatus =
+      task.status === 'todo' ? 'in-progress' : task.status === 'in-progress' ? 'done' : 'todo';
+    return await updateTaskApi(task.id, { status: nextStatus });
+  }
+);
 
 const initialState = {
-  items: [
-    {
-      id: 1,
-      title: 'Hoàn thành báo cáo FER202',
-      status: 'in-progress',
-      dueDate: '2026-07-20',
-      priority: 'extreme',
-      description: '',
-    },
-    {
-      id: 2,
-      title: 'Ôn tập Redux Toolkit',
-      status: 'todo',
-      dueDate: '2026-07-22',
-      priority: 'high',
-      description: '',
-    },
-    {
-      id: 3,
-      title: 'Setup project Multi Tools',
-      status: 'done',
-      dueDate: '2026-07-13',
-      priority: 'medium',
-      description: '',
-    },
-  ],
+  items: [],
+  loading: false,
+  error: null,
 };
 
 const tasksSlice = createSlice({
   name: 'tasks',
   initialState,
-  reducers: {
-    addTask: (state, action) => {
-      state.items.unshift(action.payload);
-    },
-    toggleTaskStatus: (state, action) => {
-      const task = state.items.find((t) => t.id === action.payload);
-      if (!task) return;
-      task.status =
-        task.status === 'todo' ? 'in-progress' : task.status === 'in-progress' ? 'done' : 'todo';
-    },
-    deleteTask: (state, action) => {
-      state.items = state.items.filter((t) => t.id !== action.payload);
-    },
-    updateTask: (state, action) => {
-      const { id, changes } = action.payload;
-      const task = state.items.find((t) => t.id === id);
-      if (!task) return;
-      Object.assign(task, changes);
-    },
+  reducers: {},
+  extraReducers: (builder) => {
+    builder
+      // --- fetchTasks ---
+      .addCase(fetchTasks.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchTasks.fulfilled, (state, action) => {
+        state.loading = false;
+        state.items = action.payload;
+      })
+      .addCase(fetchTasks.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message;
+      })
+      // --- addTask ---
+      .addCase(addTask.fulfilled, (state, action) => {
+        state.items.unshift(action.payload);
+      })
+      // --- updateTask ---
+      .addCase(updateTask.fulfilled, (state, action) => {
+        const idx = state.items.findIndex((t) => t.id === action.payload.id);
+        if (idx !== -1) state.items[idx] = action.payload;
+      })
+      // --- toggleTaskStatus ---
+      .addCase(toggleTaskStatus.fulfilled, (state, action) => {
+        const idx = state.items.findIndex((t) => t.id === action.payload.id);
+        if (idx !== -1) state.items[idx] = action.payload;
+      })
+      // --- deleteTask ---
+      .addCase(deleteTask.fulfilled, (state, action) => {
+        state.items = state.items.filter((t) => t.id !== action.payload);
+      });
   },
 });
 
-export const { addTask, toggleTaskStatus, deleteTask, updateTask } = tasksSlice.actions;
 export default tasksSlice.reducer;
