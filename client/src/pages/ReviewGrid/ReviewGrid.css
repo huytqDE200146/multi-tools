@@ -1,3 +1,22 @@
+.review-grid-dark {
+  background: #0d0d0f;
+  color: #e8e8ea;
+  padding: 1.5rem;
+  border-radius: 12px;
+  min-height: 100vh;
+  margin: -1rem;
+  padding-top: 1.5rem;
+}
+
+.review-back-link {
+  color: #8ab4f8;
+  text-decoration: none;
+}
+
+.review-back-link:hover {
+  text-decoration: underline;
+}
+
 .review-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(48px, 1fr));
@@ -18,14 +37,19 @@
   transform: scale(1.08);
 }
 
-.review-cell.answered {
-  background: #198754;
-  color: #fff;
+.review-cell.correct {
+  background: #30d158;
+  color: #06210f;
+}
+
+.review-cell.wrong {
+  background: #ff453a;
+  color: #2e0605;
 }
 
 .review-cell.unanswered {
-  background: #e9ecef;
-  color: #495057;
+  background: #2c2c2e;
+  color: #8e8e93;
 }
 
 .review-legend {
@@ -38,6 +62,7 @@
   align-items: center;
   gap: 6px;
   font-size: 0.9rem;
+  color: #b0b0b3;
 }
 
 .review-dot {
@@ -47,11 +72,15 @@
   display: inline-block;
 }
 
-.review-dot.answered {
-  background: #198754;
+.review-dot.correct {
+  background: #30d158;
+}
+
+.review-dot.wrong {
+  background: #ff453a;
 }
 
 .review-dot.unanswered {
-  background: #e9ecef;
-  border: 1px solid #adb5bd;
+  background: #2c2c2e;
+  border: 1px solid #48484a;
 }

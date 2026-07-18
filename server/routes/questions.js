@@ -2,13 +2,18 @@ const express = require('express');
 const router = express.Router();
 const db = require('../db/database');
 
-// Chuyển row từ DB (options là chuỗi JSON) thành object JS (options là mảng thật)
+// Chuyển row từ DB (options, correctIndexes là chuỗi JSON) thành object JS (mảng thật)
 function parseQuestion(row) {
   if (!row) return row;
-  return { ...row, options: JSON.parse(row.options) };
+  return {
+    ...row,
+    options: JSON.parse(row.options),
+    correctIndexes: JSON.parse(row.correctIndexes),
+    allowMultiple: Boolean(row.allowMultiple),
+  };
 }
 
-// GET /api/questions?lessonId=1 - lấy câu hỏi của 1 bài học, sắp theo thứ tự
+// GET /api/questions?lessonId=1
 router.get('/', (req, res) => {
   const { lessonId } = req.query;
   let questions;
@@ -35,7 +40,8 @@ router.post('/', (req, res) => {
     lessonId,
     questionText,
     options,
-    correctIndex,
+    correctIndexes,
+    allowMultiple = false,
     explanation = '',
     orderIndex = 0,
   } = req.body;
@@ -45,15 +51,23 @@ router.post('/', (req, res) => {
       error: 'lessonId, questionText, and at least 2 options are required',
     });
   }
-  if (typeof correctIndex !== 'number' || correctIndex < 0 || correctIndex >= options.length) {
-    return res.status(400).json({ error: 'correctIndex must be a valid index into options' });
+  if (!Array.isArray(correctIndexes) || correctIndexes.length === 0) {
+    return res.status(400).json({ error: 'correctIndexes must be a non-empty array' });
   }
 
   const result = db
     .prepare(
-      'INSERT INTO questions (lessonId, questionText, options, correctIndex, explanation, orderIndex) VALUES (?, ?, ?, ?, ?, ?)'
+      'INSERT INTO questions (lessonId, questionText, options, correctIndexes, allowMultiple, explanation, orderIndex) VALUES (?, ?, ?, ?, ?, ?, ?)'
     )
-    .run(lessonId, questionText, JSON.stringify(options), correctIndex, explanation, orderIndex);
+    .run(
+      lessonId,
+      questionText,
+      JSON.stringify(options),
+      JSON.stringify(correctIndexes),
+      allowMultiple ? 1 : 0,
+      explanation,
+      orderIndex
+    );
 
   const newQuestion = db.prepare('SELECT * FROM questions WHERE id = ?').get(result.lastInsertRowid);
   res.status(201).json(parseQuestion(newQuestion));
@@ -66,13 +80,22 @@ router.put('/:id', (req, res) => {
 
   const questionText = req.body.questionText ?? existing.questionText;
   const options = req.body.options ?? JSON.parse(existing.options);
-  const correctIndex = req.body.correctIndex ?? existing.correctIndex;
+  const correctIndexes = req.body.correctIndexes ?? JSON.parse(existing.correctIndexes);
+  const allowMultiple = req.body.allowMultiple ?? Boolean(existing.allowMultiple);
   const explanation = req.body.explanation ?? existing.explanation;
   const orderIndex = req.body.orderIndex ?? existing.orderIndex;
 
   db.prepare(
-    'UPDATE questions SET questionText = ?, options = ?, correctIndex = ?, explanation = ?, orderIndex = ? WHERE id = ?'
-  ).run(questionText, JSON.stringify(options), correctIndex, explanation, orderIndex, req.params.id);
+    'UPDATE questions SET questionText = ?, options = ?, correctIndexes = ?, allowMultiple = ?, explanation = ?, orderIndex = ? WHERE id = ?'
+  ).run(
+    questionText,
+    JSON.stringify(options),
+    JSON.stringify(correctIndexes),
+    allowMultiple ? 1 : 0,
+    explanation,
+    orderIndex,
+    req.params.id
+  );
 
   const updated = db.prepare('SELECT * FROM questions WHERE id = ?').get(req.params.id);
   res.json(parseQuestion(updated));

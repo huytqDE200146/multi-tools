@@ -34,32 +34,44 @@ const ReviewGrid = () => {
     return <Alert variant="danger">{error}</Alert>;
   }
 
-  const answeredCount = Object.keys(answersForLesson).length;
+  const getCellState = (questionId) => {
+    const answer = answersForLesson[questionId];
+    if (!answer || !answer.submitted) return 'unanswered';
+    return answer.isCorrect ? 'correct' : 'wrong';
+  };
+
+  const submittedCount = Object.values(answersForLesson).filter((a) => a.submitted).length;
+  const correctCount = Object.values(answersForLesson).filter((a) => a.submitted && a.isCorrect).length;
 
   return (
-    <div>
-      <Link to={`/lessons/${subjectId}/${lessonId}`} className="d-inline-block mb-3">
+    <div className="review-grid-dark">
+      <Link to={`/lessons/${subjectId}/${lessonId}`} className="review-back-link d-inline-block mb-3">
         ← Quay lại làm bài
       </Link>
 
-      <h1 className="h4">Toàn bộ câu hỏi ({answeredCount}/{questions.length} đã làm)</h1>
+      <h1 className="h4">
+        Toàn bộ câu hỏi ({submittedCount}/{questions.length} đã làm — đúng {correctCount}/{submittedCount || 0})
+      </h1>
 
       <div className="review-legend mb-3">
         <span className="review-legend-item">
-          <span className="review-dot answered" /> Đã trả lời
+          <span className="review-dot correct" /> Đúng
         </span>
         <span className="review-legend-item">
-          <span className="review-dot unanswered" /> Chưa trả lời
+          <span className="review-dot wrong" /> Sai
+        </span>
+        <span className="review-legend-item">
+          <span className="review-dot unanswered" /> Chưa làm
         </span>
       </div>
 
       <div className="review-grid">
         {questions.map((question, idx) => {
-          const isAnswered = answersForLesson[question.id] !== undefined;
+          const state = getCellState(question.id);
           return (
             <button
               key={question.id}
-              className={`review-cell ${isAnswered ? 'answered' : 'unanswered'}`}
+              className={`review-cell ${state}`}
               onClick={() => handleJumpToQuestion(idx)}
               title={question.questionText}
             >

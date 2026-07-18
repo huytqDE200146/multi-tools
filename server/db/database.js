@@ -65,7 +65,8 @@ db.exec(`
     lessonId INTEGER NOT NULL,
     questionText TEXT NOT NULL,
     options TEXT NOT NULL,
-    correctIndex INTEGER NOT NULL,
+    correctIndexes TEXT NOT NULL,
+    allowMultiple INTEGER NOT NULL DEFAULT 0,
     explanation TEXT NOT NULL DEFAULT '',
     orderIndex INTEGER NOT NULL DEFAULT 0,
     FOREIGN KEY (lessonId) REFERENCES lessons(id) ON DELETE CASCADE
