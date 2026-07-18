@@ -2,9 +2,9 @@ import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
   items: [
-    { id: 1, title: 'Hoàn thành báo cáo FER202', status: 'in-progress', dueDate: '2026-07-20' },
-    { id: 2, title: 'Ôn tập Redux Toolkit', status: 'todo', dueDate: '2026-07-22' },
-    { id: 3, title: 'Setup project Multi Tools', status: 'done', dueDate: '2026-07-13' },
+    { id: 1, title: 'Hoàn thành báo cáo FER202', status: 'in-progress', dueDate: '2026-07-20', priority: 'extreme' },
+    { id: 2, title: 'Ôn tập Redux Toolkit', status: 'todo', dueDate: '2026-07-22', priority: 'high' },
+    { id: 3, title: 'Setup project Multi Tools', status: 'done', dueDate: '2026-07-13', priority: 'medium' },
   ],
 };
 

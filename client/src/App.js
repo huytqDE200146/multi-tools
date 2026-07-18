@@ -5,9 +5,9 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { Spinner } from 'react-bootstrap';
 import AppNavbar from './components/Navbar/AppNavbar';
 import Home from './pages/Home/Home';
+import Tasks from './pages/Tasks/Tasks';
 import About from './pages/About/About';
 
-// Lazy load trang Feature — code của trang này chỉ được tải khi người dùng vào /feature
 const Feature = lazy(() => import('./pages/Feature/Feature'));
 
 function App() {
@@ -32,6 +32,7 @@ function App() {
               </Suspense>
             }
           />
+          <Route path="/tasks" element={<Tasks />} />
           <Route path="/about" element={<About />} />
         </Routes>
       </div>

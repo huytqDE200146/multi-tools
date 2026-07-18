@@ -1,0 +1,89 @@
+.month-calendar {
+  background: #000;
+  color: #fff;
+  border-radius: 12px;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.month-calendar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.month-calendar-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+.month-nav-btn {
+  background: #2c2c2e;
+  color: #fff;
+  border: none;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  font-size: 1.1rem;
+  cursor: pointer;
+}
+
+.month-nav-btn:hover {
+  background: #3a3a3c;
+}
+
+.month-calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+}
+
+.month-calendar-daylabel {
+  text-align: center;
+  font-size: 0.75rem;
+  color: #8e8e93;
+  font-weight: 600;
+  padding-bottom: 4px;
+  border-bottom: 1px solid #2c2c2e;
+}
+
+.month-calendar-cell {
+  position: relative;
+  min-height: 60px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding-top: 6px;
+  border-radius: 8px;
+}
+
+.month-calendar-cell.empty {
+  visibility: hidden;
+}
+
+.month-calendar-daynum {
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.month-calendar-cell.today .month-calendar-daynum {
+  background: #ff3b30;
+  color: #fff;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.month-calendar-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #bf5af2;
+  margin-top: 4px;
+}

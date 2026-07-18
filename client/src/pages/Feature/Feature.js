@@ -1,15 +1,15 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { Form, Button, Row, Col, Spinner, Alert, ListGroup } from 'react-bootstrap';
-import TaskList from '../../components/TaskList/TaskList';
-import { addTask, toggleTaskStatus, deleteTask } from '../../features/tasks/tasksSlice';
+import { Spinner, Alert, ListGroup } from 'react-bootstrap';
+import MonthCalendar from '../../components/Calendar/MonthCalendar';
+import TaskItem from '../../components/TaskItem/TaskItem';
+import { toggleTaskStatus, deleteTask } from '../../features/tasks/tasksSlice';
 
 const Feature = () => {
   const tasks = useSelector((state) => state.tasks.items);
   const dispatch = useDispatch();
 
-  const [newTitle, setNewTitle] = useState('');
-  const [newDueDate, setNewDueDate] = useState('');
+  const [currentDate, setCurrentDate] = useState(new Date());
 
   const [holidays, setHolidays] = useState([]);
   const [loadingHolidays, setLoadingHolidays] = useState(true);
@@ -40,34 +40,41 @@ const Feature = () => {
     fetchHolidays();
   }, []);
 
-  const handleAddTask = (e) => {
-    e.preventDefault();
-    if (!newTitle.trim()) return;
-
-    dispatch(
-      addTask({
-        id: Date.now(),
-        title: newTitle.trim(),
-        status: 'todo',
-        dueDate: newDueDate || null,
-      })
-    );
-
-    setNewTitle('');
-    setNewDueDate('');
+  const goToPrevMonth = () => {
+    setCurrentDate((prev) => new Date(prev.getFullYear(), prev.getMonth() - 1, 1));
   };
 
-  const handleToggleStatus = (id) => {
-    dispatch(toggleTaskStatus(id));
+  const goToNextMonth = () => {
+    setCurrentDate((prev) => new Date(prev.getFullYear(), prev.getMonth() + 1, 1));
   };
 
-  const handleDeleteTask = (id) => {
-    dispatch(deleteTask(id));
-  };
+  const handleToggleStatus = (id) => dispatch(toggleTaskStatus(id));
+  const handleDeleteTask = (id) => dispatch(deleteTask(id));
+
+  // Nhiệm vụ độ ưu tiên "extreme", chưa hoàn thành
+  const extremeTasks = useMemo(
+    () => tasks.filter((t) => t.priority === 'extreme' && t.status !== 'done'),
+    [tasks]
+  );
+
+  // 3 nhiệm vụ gần hạn nhất, chưa hoàn thành, có gắn ngày
+  const upcomingTasks = useMemo(() => {
+    return tasks
+      .filter((t) => t.status !== 'done' && t.dueDate)
+      .sort((a, b) => a.dueDate.localeCompare(b.dueDate))
+      .slice(0, 3);
+  }, [tasks]);
 
   return (
     <div>
-      <h1>Lịch & Nhiệm vụ</h1>
+      <h1>Lịch</h1>
+
+      <MonthCalendar
+        tasks={tasks}
+        currentDate={currentDate}
+        onPrevMonth={goToPrevMonth}
+        onNextMonth={goToNextMonth}
+      />
 
       <div className="mb-4">
         <h2 className="h5">Ngày lễ Việt Nam 2026</h2>
@@ -89,38 +96,37 @@ const Feature = () => {
         )}
       </div>
 
-      <Form onSubmit={handleAddTask} className="mb-4">
-        <Row className="g-2 align-items-end">
-          <Col md={6}>
-            <Form.Label>Tên nhiệm vụ</Form.Label>
-            <Form.Control
-              type="text"
-              placeholder="Nhập nhiệm vụ mới..."
-              value={newTitle}
-              onChange={(e) => setNewTitle(e.target.value)}
+      <div className="mb-4">
+        <h2 className="h5">Nhiệm vụ ưu tiên cực cao</h2>
+        {extremeTasks.length === 0 ? (
+          <p className="text-muted">Không có nhiệm vụ nào ở mức ưu tiên cực cao.</p>
+        ) : (
+          extremeTasks.map((task) => (
+            <TaskItem
+              key={task.id}
+              task={task}
+              onToggleStatus={handleToggleStatus}
+              onDelete={handleDeleteTask}
             />
-          </Col>
-          <Col md={4}>
-            <Form.Label>Hạn hoàn thành</Form.Label>
-            <Form.Control
-              type="date"
-              value={newDueDate}
-              onChange={(e) => setNewDueDate(e.target.value)}
-            />
-          </Col>
-          <Col md={2}>
-            <Button type="submit" variant="primary" className="w-100">
-              Thêm
-            </Button>
-          </Col>
-        </Row>
-      </Form>
+          ))
+        )}
+      </div>
 
-      <TaskList
-        tasks={tasks}
-        onToggleStatus={handleToggleStatus}
-        onDelete={handleDeleteTask}
-      />
+      <div>
+        <h2 className="h5">3 nhiệm vụ sắp tới gần nhất</h2>
+        {upcomingTasks.length === 0 ? (
+          <p className="text-muted">Không có nhiệm vụ nào sắp tới hạn.</p>
+        ) : (
+          upcomingTasks.map((task) => (
+            <TaskItem
+              key={task.id}
+              task={task}
+              onToggleStatus={handleToggleStatus}
+              onDelete={handleDeleteTask}
+            />
+          ))
+        )}
+      </div>
     </div>
   );
 };

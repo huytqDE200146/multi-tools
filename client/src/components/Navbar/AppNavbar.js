@@ -20,7 +20,10 @@ const AppNavbar = () => {
               Trang chủ
             </Nav.Link>
             <Nav.Link as={NavLink} to="/feature">
-              Lịch & Nhiệm vụ{' '}
+              Lịch
+            </Nav.Link>
+            <Nav.Link as={NavLink} to="/tasks">
+              Nhiệm vụ{' '}
               {pendingCount > 0 && (
                 <Badge bg="warning" text="dark">
                   {pendingCount}
