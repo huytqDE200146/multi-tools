@@ -87,3 +87,12 @@
   background: #bf5af2;
   margin-top: 4px;
 }
+
+.month-calendar-cell:not(.empty) {
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.month-calendar-cell:not(.empty):hover {
+  background: #1c1c1e;
+}

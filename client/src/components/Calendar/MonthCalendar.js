@@ -7,13 +7,10 @@ const MONTH_LABELS = [
   'Tháng 7', 'Tháng 8', 'Tháng 9', 'Tháng 10', 'Tháng 11', 'Tháng 12',
 ];
 
-// Tạo ma trận các tuần trong tháng, mỗi tuần là mảng 7 phần tử (số ngày hoặc null)
 function getMonthMatrix(year, month) {
   const firstDay = new Date(year, month, 1);
   const lastDay = new Date(year, month + 1, 0);
   const daysInMonth = lastDay.getDate();
-
-  // JS: getDay() trả 0=CN,1=T2,...,6=T7 -> quy đổi để T2=0,...,CN=6
   const firstWeekday = (firstDay.getDay() + 6) % 7;
 
   const cells = [];
@@ -28,14 +25,13 @@ function getMonthMatrix(year, month) {
   return weeks;
 }
 
-// Chuyển (năm, tháng, ngày) thành chuỗi "YYYY-MM-DD" để so khớp với task.dueDate
-const formatDateKey = (year, month, day) => {
+export const formatDateKey = (year, month, day) => {
   const mm = String(month + 1).padStart(2, '0');
   const dd = String(day).padStart(2, '0');
   return `${year}-${mm}-${dd}`;
 };
 
-const MonthCalendar = ({ tasks, currentDate, onPrevMonth, onNextMonth }) => {
+const MonthCalendar = ({ tasks, currentDate, onPrevMonth, onNextMonth, onSelectDay }) => {
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();
   const weeks = getMonthMatrix(year, month);
@@ -78,6 +74,8 @@ const MonthCalendar = ({ tasks, currentDate, onPrevMonth, onNextMonth }) => {
           <div
             key={idx}
             className={`month-calendar-cell ${day ? '' : 'empty'} ${isToday(day) ? 'today' : ''}`}
+            onClick={() => day && onSelectDay(formatDateKey(year, month, day))}
+            role={day ? 'button' : undefined}
           >
             {day && (
               <>

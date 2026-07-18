@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { Spinner, Alert, ListGroup } from 'react-bootstrap';
+import { Spinner, Alert, ListGroup, Button } from 'react-bootstrap';
 import MonthCalendar from '../../components/Calendar/MonthCalendar';
 import TaskItem from '../../components/TaskItem/TaskItem';
 import { toggleTaskStatus, deleteTask } from '../../features/tasks/tasksSlice';
@@ -10,6 +10,7 @@ const Feature = () => {
   const dispatch = useDispatch();
 
   const [currentDate, setCurrentDate] = useState(new Date());
+  const [selectedDate, setSelectedDate] = useState(null); // "YYYY-MM-DD" hoặc null
 
   const [holidays, setHolidays] = useState([]);
   const [loadingHolidays, setLoadingHolidays] = useState(true);
@@ -51,13 +52,11 @@ const Feature = () => {
   const handleToggleStatus = (id) => dispatch(toggleTaskStatus(id));
   const handleDeleteTask = (id) => dispatch(deleteTask(id));
 
-  // Nhiệm vụ độ ưu tiên "extreme", chưa hoàn thành
   const extremeTasks = useMemo(
     () => tasks.filter((t) => t.priority === 'extreme' && t.status !== 'done'),
     [tasks]
   );
 
-  // 3 nhiệm vụ gần hạn nhất, chưa hoàn thành, có gắn ngày
   const upcomingTasks = useMemo(() => {
     return tasks
       .filter((t) => t.status !== 'done' && t.dueDate)
@@ -65,6 +64,39 @@ const Feature = () => {
       .slice(0, 3);
   }, [tasks]);
 
+  // Nhiệm vụ thuộc ngày đang được chọn (nếu có)
+  const tasksOfSelectedDate = useMemo(() => {
+    if (!selectedDate) return [];
+    return tasks.filter((t) => t.dueDate === selectedDate);
+  }, [tasks, selectedDate]);
+
+  // --- Chế độ xem nhiệm vụ theo ngày ---
+  if (selectedDate) {
+    return (
+      <div>
+        <Button variant="outline-secondary" className="mb-3" onClick={() => setSelectedDate(null)}>
+          ← Quay lại Lịch
+        </Button>
+
+        <h1>Nhiệm vụ ngày {selectedDate}</h1>
+
+        {tasksOfSelectedDate.length === 0 ? (
+          <p className="text-muted">Không có nhiệm vụ nào trong ngày này.</p>
+        ) : (
+          tasksOfSelectedDate.map((task) => (
+            <TaskItem
+              key={task.id}
+              task={task}
+              onToggleStatus={handleToggleStatus}
+              onDelete={handleDeleteTask}
+            />
+          ))
+        )}
+      </div>
+    );
+  }
+
+  // --- Chế độ xem Lịch bình thường ---
   return (
     <div>
       <h1>Lịch</h1>
@@ -74,6 +106,7 @@ const Feature = () => {
         currentDate={currentDate}
         onPrevMonth={goToPrevMonth}
         onNextMonth={goToNextMonth}
+        onSelectDay={setSelectedDate}
       />
 
       <div className="mb-4">
