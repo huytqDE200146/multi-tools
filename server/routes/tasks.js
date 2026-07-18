@@ -8,46 +8,57 @@ router.get('/', (req, res) => {
   res.json(tasks);
 });
 
-// GET /api/tasks/:id - lấy 1 nhiệm vụ theo id
+// GET /api/tasks/:id
 router.get('/:id', (req, res) => {
   const task = db.prepare('SELECT * FROM tasks WHERE id = ?').get(req.params.id);
   if (!task) return res.status(404).json({ error: 'Task not found' });
   res.json(task);
 });
 
-// POST /api/tasks - tạo nhiệm vụ mới
+// POST /api/tasks
 router.post('/', (req, res) => {
-  const { title, status = 'todo', dueDate = null } = req.body;
+  const {
+    title,
+    status = 'todo',
+    priority = 'medium',
+    description = '',
+    dueDate = null,
+  } = req.body;
+
   if (!title || !title.trim()) {
     return res.status(400).json({ error: 'Title is required' });
   }
+
   const result = db
-    .prepare('INSERT INTO tasks (title, status, dueDate) VALUES (?, ?, ?)')
-    .run(title.trim(), status, dueDate);
+    .prepare(
+      'INSERT INTO tasks (title, status, priority, description, dueDate) VALUES (?, ?, ?, ?, ?)'
+    )
+    .run(title.trim(), status, priority, description, dueDate);
+
   const newTask = db.prepare('SELECT * FROM tasks WHERE id = ?').get(result.lastInsertRowid);
   res.status(201).json(newTask);
 });
 
-// PUT /api/tasks/:id - cập nhật nhiệm vụ
+// PUT /api/tasks/:id
 router.put('/:id', (req, res) => {
   const existing = db.prepare('SELECT * FROM tasks WHERE id = ?').get(req.params.id);
   if (!existing) return res.status(404).json({ error: 'Task not found' });
 
   const title = req.body.title ?? existing.title;
   const status = req.body.status ?? existing.status;
+  const priority = req.body.priority ?? existing.priority;
+  const description = req.body.description ?? existing.description;
   const dueDate = req.body.dueDate ?? existing.dueDate;
 
-  db.prepare('UPDATE tasks SET title = ?, status = ?, dueDate = ? WHERE id = ?').run(
-    title,
-    status,
-    dueDate,
-    req.params.id
-  );
+  db.prepare(
+    'UPDATE tasks SET title = ?, status = ?, priority = ?, description = ?, dueDate = ? WHERE id = ?'
+  ).run(title, status, priority, description, dueDate, req.params.id);
+
   const updated = db.prepare('SELECT * FROM tasks WHERE id = ?').get(req.params.id);
   res.json(updated);
 });
 
-// DELETE /api/tasks/:id - xóa nhiệm vụ
+// DELETE /api/tasks/:id
 router.delete('/:id', (req, res) => {
   const existing = db.prepare('SELECT * FROM tasks WHERE id = ?').get(req.params.id);
   if (!existing) return res.status(404).json({ error: 'Task not found' });

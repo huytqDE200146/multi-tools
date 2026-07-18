@@ -1,10 +1,8 @@
 const Database = require('better-sqlite3');
 const path = require('path');
 
-// File database sẽ được tạo tại server/db/data.sqlite
 const db = new Database(path.join(__dirname, 'data.sqlite'));
 
-// Bật kiểm tra khóa ngoại
 db.pragma('foreign_keys = ON');
 
 // ---- Bảng Tasks ----
@@ -13,6 +11,8 @@ db.exec(`
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     title TEXT NOT NULL,
     status TEXT NOT NULL DEFAULT 'todo',
+    priority TEXT NOT NULL DEFAULT 'medium',
+    description TEXT NOT NULL DEFAULT '',
     dueDate TEXT,
     createdAt TEXT NOT NULL DEFAULT (datetime('now'))
   )
