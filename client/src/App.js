@@ -6,6 +6,7 @@ import { Spinner } from 'react-bootstrap';
 import AppNavbar from './components/Navbar/AppNavbar';
 import Home from './pages/Home/Home';
 import Tasks from './pages/Tasks/Tasks';
+import TaskDetail from './pages/TaskDetail/TaskDetail';
 import About from './pages/About/About';
 
 const Feature = lazy(() => import('./pages/Feature/Feature'));
@@ -33,6 +34,7 @@ function App() {
             }
           />
           <Route path="/tasks" element={<Tasks />} />
+          <Route path="/tasks/:id" element={<TaskDetail />} />
           <Route path="/about" element={<About />} />
         </Routes>
       </div>
