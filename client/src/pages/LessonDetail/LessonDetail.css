@@ -63,6 +63,7 @@
   font-size: 1.15rem;
   font-weight: 600;
   color: var(--text-primary);
+  white-space: pre-line;
 }
 
 .lesson-question-image {
@@ -77,7 +78,7 @@
 .lesson-option-btn,
 .lesson-option-default {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   width: 100%;
   text-align: left;
   background: var(--bg-surface-hover);
@@ -89,6 +90,7 @@
   font-size: 0.95rem;
   cursor: pointer;
   transition: background 0.15s ease, border-color 0.15s ease;
+  white-space: pre-line;
 }
 
 .lesson-option-btn:not(:disabled):hover {

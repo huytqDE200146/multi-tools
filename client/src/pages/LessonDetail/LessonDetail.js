@@ -155,15 +155,21 @@ const LessonDetail = () => {
   }
 
   if (questions.length === 0) {
-    return (
-      <div>
-        <Link to={`/lessons/${subjectId}`} className="d-inline-block mb-3">
-          ← Quay lại bài học
-        </Link>
-        <Alert variant="info">Bài học này chưa có câu hỏi nào.</Alert>
-      </div>
-    );
-  }
+  return (
+    <div>
+      <Link to={`/lessons/${subjectId}`} className="d-inline-block mb-3">
+        ← Quay lại bài học
+      </Link>
+      <Alert variant="info">Bài học này chưa có câu hỏi nào.</Alert>
+      <Link
+        to={`/lessons/${subjectId}/${lessonId}/review`}
+        className="btn btn-primary"
+      >
+        + Thêm câu hỏi đầu tiên
+      </Link>
+    </div>
+  );
+}
 
   if (!currentQuestion) {
     return null;
