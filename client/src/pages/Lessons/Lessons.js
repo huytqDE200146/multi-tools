@@ -106,7 +106,7 @@ const Lessons = () => {
       <Row xs={1} md={2} lg={3} className="g-3">
         {subjects.map((subject) => (
           <Col key={subject.id}>
-            <Card className="h-100 shadow-sm">
+            <Card className="h-100 shadow-sm accent-card accent-info">
               <Card.Body className="d-flex flex-column">
                 {editingId === subject.id ? (
                   <>

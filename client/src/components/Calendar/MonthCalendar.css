@@ -1,8 +1,9 @@
 .month-calendar {
-  background: #000;
-  color: #fff;
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  border: 1px solid var(--border-subtle);
   border-radius: 12px;
-  padding: 1rem;
+  padding: 1.25rem;
   margin-bottom: 1.5rem;
 }
 
@@ -14,24 +15,27 @@
 }
 
 .month-calendar-title {
+  font-family: var(--font-display);
   font-size: 1.25rem;
   font-weight: 700;
   margin: 0;
 }
 
 .month-nav-btn {
-  background: #2c2c2e;
-  color: #fff;
-  border: none;
+  background: var(--bg-surface-hover);
+  color: var(--text-primary);
+  border: 1px solid var(--border-subtle);
   border-radius: 50%;
   width: 32px;
   height: 32px;
   font-size: 1.1rem;
   cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
 }
 
 .month-nav-btn:hover {
-  background: #3a3a3c;
+  background: var(--border-subtle);
+  border-color: var(--accent);
 }
 
 .month-calendar-grid {
@@ -42,11 +46,12 @@
 
 .month-calendar-daylabel {
   text-align: center;
-  font-size: 0.75rem;
-  color: #8e8e93;
-  font-weight: 600;
-  padding-bottom: 4px;
-  border-bottom: 1px solid #2c2c2e;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  font-weight: 500;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--border-subtle);
 }
 
 .month-calendar-cell {
@@ -64,14 +69,24 @@
   visibility: hidden;
 }
 
+.month-calendar-cell:not(.empty) {
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.month-calendar-cell:not(.empty):hover {
+  background: var(--bg-surface-hover);
+}
+
 .month-calendar-daynum {
-  font-size: 1.1rem;
+  font-family: var(--font-mono);
+  font-size: 1.05rem;
   font-weight: 600;
 }
 
 .month-calendar-cell.today .month-calendar-daynum {
-  background: #ff3b30;
-  color: #fff;
+  background: var(--accent);
+  color: #12141c;
   width: 28px;
   height: 28px;
   border-radius: 50%;
@@ -84,15 +99,6 @@
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: #bf5af2;
+  background: var(--info);
   margin-top: 4px;
-}
-
-.month-calendar-cell:not(.empty) {
-  cursor: pointer;
-  transition: background 0.15s ease;
-}
-
-.month-calendar-cell:not(.empty):hover {
-  background: #1c1c1e;
 }

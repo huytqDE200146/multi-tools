@@ -1,0 +1,102 @@
+:root,
+[data-bs-theme='dark'] {
+  /* ---- Màu nền & bề mặt ---- */
+  --bg-base: #12141c;
+  --bg-surface: #1b1e29;
+  --bg-surface-hover: #242836;
+  --border-subtle: #2e3342;
+
+  /* ---- Màu chữ ---- */
+  --text-primary: #eef0f4;
+  --text-muted: #9297a8;
+
+  /* ---- Màu nhấn ---- */
+  --accent: #e8a33d;
+  --accent-hover: #f2b458;
+  --accent-soft: rgba(232, 163, 61, 0.14);
+  --success: #3ecf8e;
+  --danger: #f2545b;
+  --info: #4fb0e8;
+
+  /* ---- Typography ---- */
+  --font-display: 'Space Grotesk', sans-serif;
+  --font-body: 'Inter', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+
+  /* ---- Ghi đè biến của Bootstrap để mọi component built-in tự đổi theo ---- */
+  --bs-body-bg: var(--bg-base);
+  --bs-body-color: var(--text-primary);
+  --bs-body-font-family: var(--font-body);
+  --bs-border-color: var(--border-subtle);
+  --bs-secondary-color: var(--text-muted);
+
+  --bs-primary: var(--accent);
+  --bs-primary-rgb: 232, 163, 61;
+  --bs-success: var(--success);
+  --bs-danger: var(--danger);
+  --bs-info: var(--info);
+
+  --bs-card-bg: var(--bg-surface);
+  --bs-card-border-color: var(--border-subtle);
+
+  --bs-tertiary-bg: var(--bg-surface);
+  --bs-secondary-bg: var(--bg-surface-hover);
+}
+
+body {
+  font-family: var(--font-body);
+  background-color: var(--bg-base);
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+/* Dùng font mono cho mọi thứ mang tính "dữ liệu": ngày tháng, đếm số, mã */
+.font-mono {
+  font-family: var(--font-mono);
+}
+
+/* ---- Signature: dải màu bên trái, dùng chung cho mọi loại Card trong app ---- */
+.accent-card {
+  border-left: 4px solid var(--border-subtle);
+  transition: border-color 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.accent-card:hover {
+  transform: translateX(2px);
+}
+
+.accent-card.accent-primary {
+  border-left-color: var(--accent);
+}
+
+.accent-card.accent-success {
+  border-left-color: var(--success);
+}
+
+.accent-card.accent-danger {
+  border-left-color: var(--danger);
+}
+
+.accent-card.accent-info {
+  border-left-color: var(--info);
+}
+
+/* Scrollbar tối giản, đồng bộ theme */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-base);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border-subtle);
+  border-radius: 6px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent);
+}

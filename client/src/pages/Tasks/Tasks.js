@@ -4,6 +4,7 @@ import { Form, Button, Row, Col, Spinner, Alert } from 'react-bootstrap';
 import TaskList from '../../components/TaskList/TaskList';
 import { fetchTasks, addTask, toggleTaskStatus, deleteTask } from '../../features/tasks/tasksSlice';
 import { PRIORITY_ORDER } from '../../constants/priority';
+import './Tasks.css';
 
 const Tasks = () => {
   const { items: tasks, loading, error } = useSelector((state) => state.tasks);
@@ -66,7 +67,7 @@ const Tasks = () => {
   }, [tasks, sortBy, searchTerm]);
 
   return (
-    <div>
+    <div className="tasks-page">
       <h1>Nhiệm vụ</h1>
 
       <Form onSubmit={handleAddTask} className="mb-4">
@@ -134,7 +135,7 @@ const Tasks = () => {
 
       {!loading && !error && (
         <>
-          <p className="text-muted">
+          <p className="tasks-page-count">
             Hiển thị {visibleTasks.length} / {tasks.length} nhiệm vụ
           </p>
           <TaskList

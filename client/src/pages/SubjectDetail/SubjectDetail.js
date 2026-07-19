@@ -128,7 +128,7 @@ const SubjectDetail = () => {
       <Row xs={1} md={2} className="g-3">
         {lessons.map((lesson) => (
           <Col key={lesson.id}>
-            <Card className="h-100 shadow-sm">
+            <Card className="h-100 shadow-sm accent-card accent-success">
               <Card.Body className="d-flex flex-column">
                 {editingId === lesson.id ? (
                   <>

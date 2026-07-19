@@ -1,15 +1,9 @@
 .review-grid-dark {
-  background: #0d0d0f;
-  color: #e8e8ea;
-  padding: 1.5rem;
-  border-radius: 12px;
-  min-height: 100vh;
-  margin: -1rem;
-  padding-top: 1.5rem;
+  color: var(--text-primary);
 }
 
 .review-back-link {
-  color: #8ab4f8;
+  color: var(--info);
   text-decoration: none;
 }
 
@@ -27,6 +21,7 @@
   aspect-ratio: 1 / 1;
   border: none;
   border-radius: 8px;
+  font-family: var(--font-mono);
   font-weight: 600;
   font-size: 0.9rem;
   cursor: pointer;
@@ -38,18 +33,18 @@
 }
 
 .review-cell.correct {
-  background: #30d158;
+  background: var(--success);
   color: #06210f;
 }
 
 .review-cell.wrong {
-  background: #ff453a;
+  background: var(--danger);
   color: #2e0605;
 }
 
 .review-cell.unanswered {
-  background: #2c2c2e;
-  color: #8e8e93;
+  background: var(--bg-surface-hover);
+  color: var(--text-muted);
 }
 
 .review-legend {
@@ -62,7 +57,7 @@
   align-items: center;
   gap: 6px;
   font-size: 0.9rem;
-  color: #b0b0b3;
+  color: var(--text-muted);
 }
 
 .review-dot {
@@ -73,14 +68,14 @@
 }
 
 .review-dot.correct {
-  background: #30d158;
+  background: var(--success);
 }
 
 .review-dot.wrong {
-  background: #ff453a;
+  background: var(--danger);
 }
 
 .review-dot.unanswered {
-  background: #2c2c2e;
-  border: 1px solid #48484a;
+  background: var(--bg-surface-hover);
+  border: 1px solid var(--border-subtle);
 }

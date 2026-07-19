@@ -13,7 +13,7 @@ function TaskItem({ task, onToggleStatus, onDelete }) {
   const statusLabel = `${status === 'done' ? 'Hoàn thành' : status === 'in-progress' ? 'Đang làm' : 'Chưa làm'}`;
 
   return (
-    <Card className={`mb-2 shadow-sm task-item status-${status}`}>
+    <Card className={`mb-2 accent-card task-item status-${status}`}>
       <Card.Body className="d-flex justify-content-between align-items-center">
         <div>
           <Card.Title className="mb-1 fs-6">

@@ -1,0 +1,38 @@
+.app-navbar {
+  background-color: var(--bg-surface);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.app-navbar-brand {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.3rem;
+  color: var(--text-primary) !important;
+  letter-spacing: -0.02em;
+}
+
+.app-nav-link {
+  position: relative;
+  color: var(--text-muted) !important;
+  margin-right: 4px;
+  transition: color 0.15s ease;
+}
+
+.app-nav-link:hover {
+  color: var(--text-primary) !important;
+}
+
+.app-nav-link.active {
+  color: var(--text-primary) !important;
+}
+
+.app-nav-link.active::after {
+  content: '';
+  position: absolute;
+  left: 0.5rem;
+  right: 0.5rem;
+  bottom: -2px;
+  height: 2px;
+  background: var(--accent);
+  border-radius: 2px;
+}
