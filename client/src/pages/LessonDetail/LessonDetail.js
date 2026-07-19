@@ -1,18 +1,15 @@
-import React, { useEffect, useCallback, useState } from 'react';
+import React, { useEffect, useCallback, useState, useRef } from 'react';
 import { useParams, useSearchParams, Link } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { Spinner, Alert, Card } from 'react-bootstrap';
 import { fetchQuestionsByLesson } from '../../features/questions/questionsSlice';
-import { toggleOption, submitAnswer } from '../../features/quiz/quizSlice';
+import { toggleOption, submitAnswer, resetLessonAnswers } from '../../features/quiz/quizSlice';
 import './LessonDetail.css';
 
 const OPTION_LETTERS = ['A', 'B', 'C', 'D', 'E', 'F'];
 
-const SERVER_URL = (process.env.REACT_APP_API_URL || 'http://localhost:5000/api').replace('/api', '');
-
 const emptyAnswer = { selected: [], submitted: false, isCorrect: false };
 
-// Xáo trộn mảng theo thuật toán Fisher-Yates, trả về mảng MỚI (không sửa mảng gốc)
 function shuffleArray(array) {
   const result = [...array];
   for (let i = result.length - 1; i > 0; i--) {
@@ -31,19 +28,26 @@ const LessonDetail = () => {
   const answersForLesson = useSelector((state) => state.quiz.answers[lessonId] || {});
 
   const [mode, setMode] = useState('sequential'); // 'sequential' | 'random'
-  // displayOrder: mảng các INDEX của "questions", quy định thứ tự hiển thị thực tế
   const [displayOrder, setDisplayOrder] = useState([]);
+  const prevModeRef = useRef(mode);
 
   useEffect(() => {
     dispatch(fetchQuestionsByLesson(lessonId));
   }, [dispatch, lessonId]);
 
-  // Mỗi khi questions tải xong hoặc đổi mode, tính lại thứ tự hiển thị
+  // Tính lại thứ tự hiển thị khi questions tải xong hoặc mode thay đổi.
+  // CHỈ reset về câu 0 khi mode thực sự đổi (người dùng bấm nút) - không đè lên
+  // tham số ?q= đã có sẵn trên URL (ví dụ khi nhảy tới từ ReviewGrid).
   useEffect(() => {
     if (questions.length === 0) return;
     const baseOrder = questions.map((_, idx) => idx);
-    setDisplayOrder(mode === 'random' ? shuffleArray(baseOrder) : baseOrder);
-    setSearchParams({ q: '0' });
+    const newOrder = mode === 'random' ? shuffleArray(baseOrder) : baseOrder;
+    setDisplayOrder(newOrder);
+
+    if (prevModeRef.current !== mode) {
+      setSearchParams({ q: '0' });
+    }
+    prevModeRef.current = mode;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [questions.length, mode]);
 
@@ -89,6 +93,15 @@ const LessonDetail = () => {
       })
     );
   }, [dispatch, lessonId, currentQuestion, answer.selected.length]);
+
+  const handleReset = useCallback(() => {
+    const confirmed = window.confirm(
+      'Xóa toàn bộ đáp án đã làm trong bài này và bắt đầu lại từ đầu?'
+    );
+    if (!confirmed) return;
+    dispatch(resetLessonAnswers(lessonId));
+    goToPosition(0);
+  }, [dispatch, lessonId, goToPosition]);
 
   useEffect(() => {
     function handleKeyDown(e) {
@@ -153,7 +166,7 @@ const LessonDetail = () => {
   }
 
   if (!currentQuestion) {
-    return null; // đang đợi displayOrder được tính xong (1 nhịp render rất ngắn)
+    return null;
   }
 
   const answeredCount = Object.values(answersForLesson).filter((a) => a.submitted).length;
@@ -177,27 +190,32 @@ const LessonDetail = () => {
         ← Quay lại danh sách bài học
       </Link>
 
-      <div className="lesson-mode-toggle mb-3">
-        <button
-          className={`lesson-mode-btn ${mode === 'sequential' ? 'active' : ''}`}
-          onClick={() => setMode('sequential')}
-        >
-          Thứ tự
-        </button>
-        <button
-          className={`lesson-mode-btn ${mode === 'random' ? 'active' : ''}`}
-          onClick={() => setMode('random')}
-        >
-          Ngẫu nhiên
-        </button>
-        {mode === 'random' && (
+      <div className="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+        <div className="lesson-mode-toggle">
           <button
-            className="lesson-mode-btn"
-            onClick={() => setDisplayOrder(shuffleArray(questions.map((_, idx) => idx)))}
+            className={`lesson-mode-btn ${mode === 'sequential' ? 'active' : ''}`}
+            onClick={() => setMode('sequential')}
           >
-            🔀 Xáo lại
+            Thứ tự
           </button>
-        )}
+          <button
+            className={`lesson-mode-btn ${mode === 'random' ? 'active' : ''}`}
+            onClick={() => setMode('random')}
+          >
+            Ngẫu nhiên
+          </button>
+          {mode === 'random' && (
+            <button
+              className="lesson-mode-btn"
+              onClick={() => setDisplayOrder(shuffleArray(questions.map((_, idx) => idx)))}
+            >
+              🔀 Xáo lại
+            </button>
+          )}
+          <button className="lesson-mode-btn lesson-reset-btn" onClick={handleReset}>
+            ↺ Làm lại từ đầu
+          </button>
+        </div>
       </div>
 
       <div className="d-flex justify-content-between align-items-center mb-3">
@@ -215,14 +233,16 @@ const LessonDetail = () => {
       <Card className="mb-3 lesson-question-card">
         <Card.Body>
           <Card.Title className="lesson-question-text">{currentQuestion.questionText}</Card.Title>
-            {currentQuestion.imageUrl && (
+
+          {currentQuestion.imageUrl && (
             <img
-                src={`${SERVER_URL}/question-images/${currentQuestion.imageUrl}`}
-                alt="Minh họa câu hỏi"
-                className="lesson-question-image"
+              src={`${(process.env.REACT_APP_API_URL || 'http://localhost:5000/api').replace('/api', '')}/question-images/${currentQuestion.imageUrl}`}
+              alt="Minh họa câu hỏi"
+              className="lesson-question-image"
             />
-            )}
-            <div className="mt-3">
+          )}
+
+          <div className="mt-3">
             {currentQuestion.options.map((option, idx) => {
               const optionState = getOptionState(idx);
               return (

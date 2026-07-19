@@ -215,3 +215,13 @@
 .lesson-nav-btn:not(:disabled):hover {
   background: var(--border-subtle);
 }
+
+.lesson-reset-btn {
+  border-color: var(--danger);
+  color: var(--danger);
+}
+
+.lesson-reset-btn:hover {
+  background: rgba(242, 84, 91, 0.12);
+  color: var(--danger);
+}
