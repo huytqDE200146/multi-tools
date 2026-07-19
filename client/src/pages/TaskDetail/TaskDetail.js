@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { Badge, Form, Button, Alert } from 'react-bootstrap';
 import { updateTask } from '../../features/tasks/tasksSlice';
@@ -7,7 +7,6 @@ import { PRIORITY_LABELS, PRIORITY_COLORS } from '../../constants/priority';
 
 const TaskDetail = () => {
   const { id } = useParams();
-  const navigate = useNavigate();
   const dispatch = useDispatch();
 
   const task = useSelector((state) =>

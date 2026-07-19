@@ -2,7 +2,12 @@ import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { Card, Button, Form, Spinner, Alert, Row, Col } from 'react-bootstrap';
-import { fetchLessonsBySubject, addLesson, deleteLesson } from '../../features/lessons/lessonsSlice';
+import {
+  fetchLessonsBySubject,
+  addLesson,
+  updateLesson,
+  deleteLesson,
+} from '../../features/lessons/lessonsSlice';
 import { fetchSubjectByIdApi } from '../../api/subjectsApi';
 
 const SubjectDetail = () => {
@@ -14,6 +19,11 @@ const SubjectDetail = () => {
   const [subject, setSubject] = useState(null);
   const [newTitle, setNewTitle] = useState('');
   const [newDescription, setNewDescription] = useState('');
+
+  // id của lesson đang được sửa (null = không sửa gì cả)
+  const [editingId, setEditingId] = useState(null);
+  const [editTitle, setEditTitle] = useState('');
+  const [editDescription, setEditDescription] = useState('');
 
   useEffect(() => {
     dispatch(fetchLessonsBySubject(subjectId));
@@ -41,6 +51,29 @@ const SubjectDetail = () => {
 
   const handleDeleteLesson = (id) => {
     dispatch(deleteLesson(id));
+  };
+
+  const startEditing = (lesson) => {
+    setEditingId(lesson.id);
+    setEditTitle(lesson.title);
+    setEditDescription(lesson.description || '');
+  };
+
+  const cancelEditing = () => {
+    setEditingId(null);
+    setEditTitle('');
+    setEditDescription('');
+  };
+
+  const saveEditing = (id) => {
+    if (!editTitle.trim()) return;
+    dispatch(
+      updateLesson({
+        id,
+        changes: { title: editTitle.trim(), description: editDescription.trim() },
+      })
+    );
+    setEditingId(null);
   };
 
   return (
@@ -97,35 +130,74 @@ const SubjectDetail = () => {
           <Col key={lesson.id}>
             <Card className="h-100 shadow-sm">
               <Card.Body className="d-flex flex-column">
-                <Card.Title>
-                  <Link to={`/lessons/${subjectId}/${lesson.id}`} className="text-decoration-none">
-                    {lesson.title}
-                  </Link>
-                </Card.Title>
-                <Card.Text className="text-muted flex-grow-1">
-                    {lesson.description || 'Không có mô tả.'}
+                {editingId === lesson.id ? (
+                  <>
+                    <Form.Control
+                      type="text"
+                      className="mb-2"
+                      value={editTitle}
+                      onChange={(e) => setEditTitle(e.target.value)}
+                      placeholder="Tên bài học"
+                    />
+                    <Form.Control
+                      type="text"
+                      className="mb-3"
+                      value={editDescription}
+                      onChange={(e) => setEditDescription(e.target.value)}
+                      placeholder="Mô tả"
+                    />
+                    <div className="d-flex gap-2 mt-auto">
+                      <Button variant="success" size="sm" onClick={() => saveEditing(lesson.id)}>
+                        Lưu
+                      </Button>
+                      <Button variant="outline-secondary" size="sm" onClick={cancelEditing}>
+                        Hủy
+                      </Button>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <Card.Title>
+                      <Link
+                        to={`/lessons/${subjectId}/${lesson.id}`}
+                        className="text-decoration-none"
+                      >
+                        {lesson.title}
+                      </Link>
+                    </Card.Title>
+                    <Card.Text className="text-muted flex-grow-1">
+                      {lesson.description || 'Không có mô tả.'}
                     </Card.Text>
                     <div className="d-flex gap-2">
-                    <Link
+                      <Link
                         to={`/lessons/${subjectId}/${lesson.id}/study`}
                         className="btn btn-outline-info btn-sm"
-                    >
+                      >
                         Học
-                    </Link>
-                    <Link
+                      </Link>
+                      <Link
                         to={`/lessons/${subjectId}/${lesson.id}`}
                         className="btn btn-outline-primary btn-sm"
-                    >
+                      >
                         Thi
-                    </Link>
-                    <Button
+                      </Link>
+                      <Button
+                        variant="outline-warning"
+                        size="sm"
+                        onClick={() => startEditing(lesson)}
+                      >
+                        Sửa
+                      </Button>
+                      <Button
                         variant="outline-danger"
                         size="sm"
                         onClick={() => handleDeleteLesson(lesson.id)}
-                    >
+                      >
                         Xóa
-                    </Button>
+                      </Button>
                     </div>
+                  </>
+                )}
               </Card.Body>
             </Card>
           </Col>

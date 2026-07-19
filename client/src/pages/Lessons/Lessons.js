@@ -2,7 +2,12 @@ import React, { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { Card, Button, Form, Spinner, Alert, Row, Col } from 'react-bootstrap';
-import { fetchSubjects, addSubject, deleteSubject } from '../../features/subjects/subjectsSlice';
+import {
+  fetchSubjects,
+  addSubject,
+  updateSubject,
+  deleteSubject,
+} from '../../features/subjects/subjectsSlice';
 
 const Lessons = () => {
   const { items: subjects, loading, error } = useSelector((state) => state.subjects);
@@ -10,6 +15,10 @@ const Lessons = () => {
 
   const [newName, setNewName] = useState('');
   const [newDescription, setNewDescription] = useState('');
+
+  const [editingId, setEditingId] = useState(null);
+  const [editName, setEditName] = useState('');
+  const [editDescription, setEditDescription] = useState('');
 
   useEffect(() => {
     dispatch(fetchSubjects());
@@ -25,6 +34,29 @@ const Lessons = () => {
 
   const handleDeleteSubject = (id) => {
     dispatch(deleteSubject(id));
+  };
+
+  const startEditing = (subject) => {
+    setEditingId(subject.id);
+    setEditName(subject.name);
+    setEditDescription(subject.description || '');
+  };
+
+  const cancelEditing = () => {
+    setEditingId(null);
+    setEditName('');
+    setEditDescription('');
+  };
+
+  const saveEditing = (id) => {
+    if (!editName.trim()) return;
+    dispatch(
+      updateSubject({
+        id,
+        changes: { name: editName.trim(), description: editDescription.trim() },
+      })
+    );
+    setEditingId(null);
   };
 
   return (
@@ -76,21 +108,59 @@ const Lessons = () => {
           <Col key={subject.id}>
             <Card className="h-100 shadow-sm">
               <Card.Body className="d-flex flex-column">
-                <Card.Title>
-                  <Link to={`/lessons/${subject.id}`} className="text-decoration-none">
-                    {subject.name}
-                  </Link>
-                </Card.Title>
-                <Card.Text className="text-muted flex-grow-1">
-                  {subject.description || 'Không có mô tả.'}
-                </Card.Text>
-                <Button
-                  variant="outline-danger"
-                  size="sm"
-                  onClick={() => handleDeleteSubject(subject.id)}
-                >
-                  Xóa môn học
-                </Button>
+                {editingId === subject.id ? (
+                  <>
+                    <Form.Control
+                      type="text"
+                      className="mb-2"
+                      value={editName}
+                      onChange={(e) => setEditName(e.target.value)}
+                      placeholder="Tên môn học"
+                    />
+                    <Form.Control
+                      type="text"
+                      className="mb-3"
+                      value={editDescription}
+                      onChange={(e) => setEditDescription(e.target.value)}
+                      placeholder="Mô tả"
+                    />
+                    <div className="d-flex gap-2 mt-auto">
+                      <Button variant="success" size="sm" onClick={() => saveEditing(subject.id)}>
+                        Lưu
+                      </Button>
+                      <Button variant="outline-secondary" size="sm" onClick={cancelEditing}>
+                        Hủy
+                      </Button>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <Card.Title>
+                      <Link to={`/lessons/${subject.id}`} className="text-decoration-none">
+                        {subject.name}
+                      </Link>
+                    </Card.Title>
+                    <Card.Text className="text-muted flex-grow-1">
+                      {subject.description || 'Không có mô tả.'}
+                    </Card.Text>
+                    <div className="d-flex gap-2">
+                      <Button
+                        variant="outline-warning"
+                        size="sm"
+                        onClick={() => startEditing(subject)}
+                      >
+                        Sửa
+                      </Button>
+                      <Button
+                        variant="outline-danger"
+                        size="sm"
+                        onClick={() => handleDeleteSubject(subject.id)}
+                      >
+                        Xóa
+                      </Button>
+                    </div>
+                  </>
+                )}
               </Card.Body>
             </Card>
           </Col>

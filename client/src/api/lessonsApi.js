@@ -27,3 +27,13 @@ export async function deleteLessonApi(id) {
   if (!res.ok) throw new Error('Không thể xóa bài học');
   return id;
 }
+
+export async function updateLessonApi(id, changes) {
+  const res = await fetch(`${API_URL}/lessons/${id}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(changes),
+  });
+  if (!res.ok) throw new Error('Không thể cập nhật bài học');
+  return res.json();
+}

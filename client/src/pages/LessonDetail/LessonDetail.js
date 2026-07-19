@@ -1,5 +1,5 @@
 import React, { useEffect, useCallback, useState } from 'react';
-import { useParams, useSearchParams, useNavigate, Link } from 'react-router-dom';
+import { useParams, useSearchParams, Link } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { Spinner, Alert, Card } from 'react-bootstrap';
 import { fetchQuestionsByLesson } from '../../features/questions/questionsSlice';
