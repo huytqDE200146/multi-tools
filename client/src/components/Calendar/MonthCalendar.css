@@ -99,6 +99,13 @@
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: var(--info);
   margin-top: 4px;
+}
+
+.month-calendar-dot.dot-pending {
+  background: var(--info);
+}
+
+.month-calendar-dot.dot-done {
+  background: var(--success);
 }

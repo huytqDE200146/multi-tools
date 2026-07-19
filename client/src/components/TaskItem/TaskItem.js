@@ -3,6 +3,7 @@ import { Card, Badge } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { PRIORITY_LABELS, PRIORITY_COLORS } from '../../constants/priority';
 import './TaskItem.css';
+import { formatDateDisplay } from '../../utils/formatDate';
 
 function TaskItem({ task, onToggleStatus, onDelete }) {
   const { id, title, status, dueDate, priority } = task;
@@ -29,7 +30,7 @@ function TaskItem({ task, onToggleStatus, onDelete }) {
               {PRIORITY_LABELS[priority]}
             </Badge>
           )}
-          {dueDate && <small className="text-muted">Hạn: {dueDate}</small>}
+          {dueDate && <small className="text-muted">Hạn: {formatDateDisplay(dueDate)}</small>}
         </div>
         <div className="task-item-actions">
           {onToggleStatus && (

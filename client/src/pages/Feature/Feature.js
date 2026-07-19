@@ -4,6 +4,7 @@ import { Spinner, Alert, ListGroup, Button } from 'react-bootstrap';
 import MonthCalendar from '../../components/Calendar/MonthCalendar';
 import TaskItem from '../../components/TaskItem/TaskItem';
 import { toggleTaskStatus, deleteTask } from '../../features/tasks/tasksSlice';
+import { formatDateDisplay } from '../../utils/formatDate';
 
 const Feature = () => {
   const tasks = useSelector((state) => state.tasks.items);
@@ -64,6 +65,10 @@ const Feature = () => {
       .slice(0, 3);
   }, [tasks]);
 
+  const noDeadlineTasks = useMemo(() => {
+  return tasks.filter((t) => t.status !== 'done' && !t.dueDate).slice(0, 3);
+}, [tasks]);
+
   // Nhiệm vụ thuộc ngày đang được chọn (nếu có)
   const tasksOfSelectedDate = useMemo(() => {
     if (!selectedDate) return [];
@@ -78,7 +83,7 @@ const Feature = () => {
           ← Quay lại Lịch
         </Button>
 
-        <h1>Nhiệm vụ ngày {selectedDate}</h1>
+        <h1>Nhiệm vụ ngày {formatDateDisplay(selectedDate)}</h1>
 
         {tasksOfSelectedDate.length === 0 ? (
           <p className="text-muted">Không có nhiệm vụ nào trong ngày này.</p>
@@ -122,7 +127,7 @@ const Feature = () => {
           <ListGroup>
             {holidays.slice(0, 5).map((holiday) => (
               <ListGroup.Item key={holiday.date}>
-                <strong>{holiday.date}</strong> — {holiday.name}
+                <strong>{formatDateDisplay(holiday.date)}</strong> — {holiday.name}
               </ListGroup.Item>
             ))}
           </ListGroup>
@@ -151,6 +156,21 @@ const Feature = () => {
           <p className="text-muted">Không có nhiệm vụ nào sắp tới hạn.</p>
         ) : (
           upcomingTasks.map((task) => (
+            <TaskItem
+              key={task.id}
+              task={task}
+              onToggleStatus={handleToggleStatus}
+              onDelete={handleDeleteTask}
+            />
+          ))
+        )}
+      </div>
+      <div className="mt-4">
+        <h2 className="h5">Nhiệm vụ chưa có hạn</h2>
+        {noDeadlineTasks.length === 0 ? (
+          <p className="text-muted">Không có nhiệm vụ nào thiếu hạn hoàn thành.</p>
+        ) : (
+          noDeadlineTasks.map((task) => (
             <TaskItem
               key={task.id}
               task={task}

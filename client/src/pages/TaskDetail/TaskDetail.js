@@ -6,6 +6,7 @@ import { updateTask } from '../../features/tasks/tasksSlice';
 import { fetchAllLessonsApi } from '../../api/lessonsApi';
 import { fetchSubjectsApi } from '../../api/subjectsApi';
 import { PRIORITY_LABELS, PRIORITY_COLORS } from '../../constants/priority';
+import { formatDateDisplay } from '../../utils/formatDate';
 
 const TaskDetail = () => {
   const { id } = useParams();
@@ -99,7 +100,7 @@ const TaskDetail = () => {
             {PRIORITY_LABELS[task.priority]}
           </Badge>
         )}
-        {task.dueDate && <span className="text-muted">Hạn: {task.dueDate}</span>}
+        {task.dueDate && <span className="text-muted">Hạn: {formatDateDisplay(task.dueDate)}</span>}
       </div>
 
       <Form onSubmit={handleSaveDescription}>

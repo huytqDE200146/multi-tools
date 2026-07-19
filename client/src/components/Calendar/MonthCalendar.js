@@ -43,10 +43,17 @@ const MonthCalendar = ({ tasks, currentDate, onPrevMonth, onNextMonth, onSelectD
     today.getMonth() === month &&
     today.getDate() === day;
 
-  const hasTask = (day) => {
-    if (!day) return false;
+  const getTasksOfDay = (day) => {
+    if (!day) return [];
     const key = formatDateKey(year, month, day);
-    return tasks.some((t) => t.dueDate === key);
+    return tasks.filter((t) => t.dueDate === key);
+  };
+
+  const getDayDotClass = (day) => {
+    const dayTasks = getTasksOfDay(day);
+    if (dayTasks.length === 0) return null;
+    const allDone = dayTasks.every((t) => t.status === 'done');
+    return allDone ? 'done' : 'pending';
   };
 
   return (
@@ -80,7 +87,9 @@ const MonthCalendar = ({ tasks, currentDate, onPrevMonth, onNextMonth, onSelectD
             {day && (
               <>
                 <span className="month-calendar-daynum">{day}</span>
-                {hasTask(day) && <span className="month-calendar-dot" />}
+                {getDayDotClass(day) && (
+                  <span className={`month-calendar-dot dot-${getDayDotClass(day)}`} />
+                )}
               </>
             )}
           </div>
