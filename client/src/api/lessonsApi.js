@@ -37,3 +37,9 @@ export async function updateLessonApi(id, changes) {
   if (!res.ok) throw new Error('Không thể cập nhật bài học');
   return res.json();
 }
+
+export async function fetchAllLessonsApi() {
+  const res = await fetch(`${API_URL}/lessons`);
+  if (!res.ok) throw new Error('Không thể tải danh sách bài học');
+  return res.json();
+}

@@ -14,6 +14,7 @@ const PORT = process.env.PORT || 5000;
 
 app.use(cors());
 app.use(express.json());
+app.use('/question-images', express.static('public/question-images'));
 
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', message: 'Multi Tools API is running' });

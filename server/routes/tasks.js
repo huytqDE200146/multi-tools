@@ -23,6 +23,7 @@ router.post('/', (req, res) => {
     priority = 'medium',
     description = '',
     dueDate = null,
+    relatedLessonId = null,
   } = req.body;
 
   if (!title || !title.trim()) {
@@ -31,9 +32,9 @@ router.post('/', (req, res) => {
 
   const result = db
     .prepare(
-      'INSERT INTO tasks (title, status, priority, description, dueDate) VALUES (?, ?, ?, ?, ?)'
+      'INSERT INTO tasks (title, status, priority, description, dueDate, relatedLessonId) VALUES (?, ?, ?, ?, ?, ?)'
     )
-    .run(title.trim(), status, priority, description, dueDate);
+    .run(title.trim(), status, priority, description, dueDate, relatedLessonId);
 
   const newTask = db.prepare('SELECT * FROM tasks WHERE id = ?').get(result.lastInsertRowid);
   res.status(201).json(newTask);
@@ -49,10 +50,11 @@ router.put('/:id', (req, res) => {
   const priority = req.body.priority ?? existing.priority;
   const description = req.body.description ?? existing.description;
   const dueDate = req.body.dueDate ?? existing.dueDate;
+  const relatedLessonId = req.body.relatedLessonId ?? existing.relatedLessonId;
 
   db.prepare(
-    'UPDATE tasks SET title = ?, status = ?, priority = ?, description = ?, dueDate = ? WHERE id = ?'
-  ).run(title, status, priority, description, dueDate, req.params.id);
+    'UPDATE tasks SET title = ?, status = ?, priority = ?, description = ?, dueDate = ?, relatedLessonId = ? WHERE id = ?'
+  ).run(title, status, priority, description, dueDate, relatedLessonId, req.params.id);
 
   const updated = db.prepare('SELECT * FROM tasks WHERE id = ?').get(req.params.id);
   res.json(updated);

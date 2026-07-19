@@ -17,6 +17,13 @@ db.exec(`
     createdAt TEXT NOT NULL DEFAULT (datetime('now'))
   )
 `);
+// Migration: thêm cột relatedLessonId nếu database cũ chưa có (không xóa dữ liệu tasks hiện có)
+try {
+  db.exec('ALTER TABLE tasks ADD COLUMN relatedLessonId INTEGER');
+} catch (e) {
+  // Cột đã tồn tại rồi (chạy lại server nhiều lần) - bỏ qua lỗi này
+}
+
 
 // ---- Bảng Notes ----
 db.exec(`
